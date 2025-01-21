@@ -1,13 +1,16 @@
 package br.com.alura.forumhub.controller;
 
 import br.com.alura.forumhub.domain.topico.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -39,6 +42,20 @@ public class TopicoController {
         var topico = repository.findById(id);
         return topico.map(value -> ResponseEntity.ok(new DadosListagemTopico(value))).orElseGet(() -> ResponseEntity.notFound().build());
 
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoTopico dados) {
+        var topicoOptional = repository.findById(id);
+
+        if (topicoOptional.isPresent()) {
+            var topico = topicoOptional.get();
+            topico.atualizarInformacoes(dados);
+            return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tópico não encontrado.");
     }
 
 }

@@ -48,13 +48,22 @@ public class TopicoController {
     @Transactional
     public ResponseEntity atualizar(@PathVariable Long id, @RequestBody @Valid DadosAtualizacaoTopico dados) {
         var topicoOptional = repository.findById(id);
-
         if (topicoOptional.isPresent()) {
             var topico = topicoOptional.get();
             topico.atualizarInformacoes(dados);
             return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tópico não encontrado.");
+    }
 
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity excluir(@PathVariable Long id) {
+        var topico = repository.findById(id);
+        if (topico.isPresent()) {
+            repository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Tópico não encontrado.");
     }
 

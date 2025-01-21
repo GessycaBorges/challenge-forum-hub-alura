@@ -34,4 +34,11 @@ public class TopicoController {
         return ResponseEntity.ok(page);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<DadosListagemTopico> buscarPorId(@PathVariable Long id) {
+        var topico = repository.findById(id);
+        return topico.map(value -> ResponseEntity.ok(new DadosListagemTopico(value))).orElseGet(() -> ResponseEntity.notFound().build());
+
+    }
+
 }
